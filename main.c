@@ -150,16 +150,11 @@ void print_tokens(char *tokens[]) {
 
 int main(int argc, char **argv) {
 
-	const char *tmp1 = "/bin/ls -p -f ; /bin/pwd -w";
-	char **tokens = tokenify(tmp1);
-    char **results = parse_command(tokens[0]);
+	//const char *tmp1 = "/bin/ls -p -f ; /bin/pwd -w";
+	//char **tokens = tokenify(tmp1);
+    //mchar **results = parse_command(tokens[0]);
     //print_tokens(results);
-    validate_command(results);
-
-	// char *test = "/bin/ls -p -f";
-	// char *command = parse_command(test);
-	// print_tokens(&command);
-	// validate_command(command);
+    //validate_command(results);
 
 	//get Input
 	int sequential = 1;
@@ -196,13 +191,44 @@ int main(int argc, char **argv) {
 	
 		//tokenify the line. Returns separate commands.
 		char ** tokens = tokenify(line);
+		/*
+	const char *tmp1 = "/bin/ls -p -f ; /bin/pwd -w";
+	char **tokens = tokenify(tmp1);
+    char **results = parse_command(tokens[0]);
+    //print_tokens(results);
+    validate_command(results);
+    	*/
 		
-	
 		if (sequential) {
-			// sequential stuff
+			for (int i=0; tokens[i]!=NULL; i++){
+				char ** results = parse_command(tokens[i]);
+				pid_t pid = fork();
+				if (pid==0){
+					if (execv(results[0],results)<0){
+						printf("Process entered is wrong.\n");
+						exit(1);
+						printf("exited");
+					}
+				}
+				else {
+					wait(&pid);
+				}
+
+			}
 		}
 		else {
-			// parallel stuff
+			for (int i=0; tokens[i]!=NULL; i++){
+				char ** results = parse_command(tokens[i]);
+				pid_t pid = fork();
+				if (pid==0){
+					if (execv(results[0],results)<0){
+						printf("Process Failed\n");
+						exit(1);
+					}
+
+				}
+				
+			}
 		}
 		printf("Prompt: ");
 		
