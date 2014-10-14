@@ -64,6 +64,7 @@ char** tokenify(const char *s) {
 
 int main(int argc, char **argv) {
 	//get Input
+	int sequential = 1
 	int count = 0;
 	printf("Prompt: ");
 	fflush(stdout);  
@@ -77,11 +78,32 @@ int main(int argc, char **argv) {
 			wait(); //wait for all other processes to finish.
 			return 0;
 		}
-		if (strcmp
+		if (strcmp(line, "mode")==0){
+			if (sequential==1){
+				printf("Mode is Sequential\n");
+			}
+			else {
+				printf("Mode is Parallel\n");
+			}
+		}
+		if (strcmp(line, "parallel")==0 || strcmp(line, "mode p")==0){
+			sequential = 0;
+		}
+		if (strcmp(line, "sequential")==0 || strcmp(line, "mode s")==0){
+			sequential = 1;
+		}
+		
+	
 		//tokenify the line. Returns separate commands.
 		char ** tokens = tokenify(line);
 		
 	
+		if (sequential) {
+			// sequential stuff
+		}
+		else () {
+			// parallel stuff
+		}
 
 
 	count ++;
