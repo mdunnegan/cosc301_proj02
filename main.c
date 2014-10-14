@@ -56,8 +56,8 @@ char** tokenify(const char *s) {
 	words[count]=NULL;
 	free(copy);
 	for (int i=0; i<count; i++){
-		printf("Token %i: %s\n", i, words[i]);
-		fflush(stdout);
+		//printf("Token %i: %s\n", i, words[i]);
+		//fflush(stdout);
 	}
 	return words;
 	
@@ -77,10 +77,14 @@ char** parse_command(const char *s) {
     	}
     }
 
-    char **returnArray = (char**) malloc(sizeof(char*) * numWhiteSpaces+1);
+    // allocate array of pointers
+    char **returnArray = (char**) malloc(sizeof(char*) * numWhiteSpaces+5);
+
+    // "Go red sox!"
     char *token = malloc(sizeof(char));
-    token = strtok(str, " \n\t");
-    return token;
+    //char *
+    token = strtok(str, " \n\t"); // pointer to first word...
+
 
     while (token != NULL){
     	token = strdup(token);
@@ -89,21 +93,53 @@ char** parse_command(const char *s) {
     	token = strtok(NULL, " \n\t");
     }
     returnArray[index] = NULL;
+
     return returnArray; // pointer to rv
 }
 
-int validate_command(const char **s){
-	// make a copy
+// int validate_command(char **s){
+	
+// 	int i = 0;
+// 	printf("a\n");
+// 	while (*s[i] != NULL){
+// 		printf("%s\n", *s[0]);
 
-	char** copy = strdup(s);
-	printf("The copy: %s\n", copy);
-	printf("Copy[0]: %c\n", copy[0]);
+// 		char* copy = strdup(*s[i]);
+// 		// file path
+// 		if (i == 0) {
+// 			if (copy[0] != '/'){
+// 				printf("String beings with /");
+// 				return 0; // false, file path must start with slash
+// 			}
+// 			if (copy[strlen(copy)-1] = "/"){
+// 				return 0; // false. a tailing '/' -> no program given
+// 			} 
+// 		}
 
-	if (copy[0] != "/"){
-		return 0; // false, file path must start with slash
-	}
+// 		// flags
+// 		else {
+// 			if (copy[0] != '-'){
+// 				printf("Flag didn't have a dash");
+// 				return 0;
+// 			}
 
-}
+// 			// 
+
+// 			// if (strlen(copy) > 2){
+// 			// 	return 0; 
+// 			// }
+// 		}
+// 		i++;
+// 	}
+
+// 	char** copy = strdup(s);
+// 	printf("The copy: %s\n", copy);
+// 	printf("Copy[0]: %c\n", copy[0]);
+
+	
+
+// }
+
 void print_tokens(char *tokens[]) {
     int i = 0;
     while (tokens[i] != NULL) {
@@ -113,11 +149,17 @@ void print_tokens(char *tokens[]) {
 }
 
 int main(int argc, char **argv) {
-	//testing
-	char *test = "/bin/ls -p -f";
-	char *command = parse_command(test);
-	print_tokens(&command);
-	validate_command(&command);
+
+	const char *tmp1 = "/bin/ls -p -f ; /bin/pwd -w";
+	char **tokens = tokenify(tmp1);
+    char **results = parse_command(tokens[0]);
+    //print_tokens(results);
+    validate_command(results);
+
+	// char *test = "/bin/ls -p -f";
+	// char *command = parse_command(test);
+	// print_tokens(&command);
+	// validate_command(command);
 
 	//get Input
 	int sequential = 1;
