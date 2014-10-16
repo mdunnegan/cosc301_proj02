@@ -147,6 +147,31 @@ void print_tokens(char *tokens[]) {
         i++;
     }
 }
+int overhead(const char *line, int sequential){
+		if (strcmp(line, "exit")==0){
+			return 1;
+		}
+		if (strcmp(line, "mode")==0){
+			if (sequential==1){
+				printf("Mode is Sequential\n");
+				return 0;
+			}
+			else {
+				printf("Mode is Parallel\n");
+				return 0;
+			}
+		}
+		
+		if (strcmp(line, "sequential")==0 || strcmp(line, "mode s")==0){
+			sequential = 1;
+			return 2;
+		}
+		if (strcmp(line, "parallel")==0 || strcmp(line, "mode p")==0){
+			sequential = 0;
+			return 3;;
+		}
+		return 0;
+}
 
 int main(int argc, char **argv) {
 
@@ -168,52 +193,55 @@ int main(int argc, char **argv) {
 				line[i]='\0';
 			}
 		}
-		if (strcmp(line, "exit")==0){
-			printf("Exiting \n");
-			//wait(); //wait for all other processes to finish.
-			return 0;
-		}
-		if (strcmp(line, "mode")==0){
-			if (sequential==1){
-				printf("Mode is Sequential\n");
-			}
-			else {
-				printf("Mode is Parallel\n");
-			}
-		}
-		if (strcmp(line, "parallel")==0 || strcmp(line, "mode p")==0){
-			sequential = 0;
-		}
-		if (strcmp(line, "sequential")==0 || strcmp(line, "mode s")==0){
-			sequential = 1;
-		}
-		
 	
 		//tokenify the line. Returns separate commands.
 		char ** tokens = tokenify(line);
-		/*
-	const char *tmp1 = "/bin/ls -p -f ; /bin/pwd -w";
-	char **tokens = tokenify(tmp1);
-    char **results = parse_command(tokens[0]);
-    //print_tokens(results);
-    validate_command(results);
-    	*/
-		
+		int exit_terminal = 0;
+		int mode_switch = 0;
 		if (sequential) {
 			for (int i=0; tokens[i]!=NULL; i++){
 				char ** results = parse_command(tokens[i]);
+				int overhead_command = overhead(tokens[i], sequential);
+				//if (overhead_command==0) do nothing. print mode.
+				if (overhead_command==1){
+					//exit command issued
+					exit_terminal = 1;
+					continue;
+				}
+				if (overhead_command==2){
+					//switch to sequential mode
+					mode_switch = 1;
+					continue;
+				}
+				if (overhead_command==3){
+					//switch to parallel
+					mode_switch = 2;
+					continue;
+				}
+
+
 				pid_t pid = fork();
 				if (pid==0){
+
 					if (execv(results[0],results)<0){
 						printf("Process entered is wrong.\n");
-						exit(1);
-						printf("exited");
+						exit(0);
+						printf("Exited, something messed up."); //should never print
 					}
 				}
 				else {
 					wait(&pid);
 				}
+			}
 
+			if (exit_terminal==1){
+				return 0;
+			}
+			if (mode_switch==1){
+				sequential = 1; //switch to sequential
+			}
+			if (mode_switch==2){
+				sequential = 0; //switch to parallel
 			}
 		}
 		else {
@@ -223,7 +251,7 @@ int main(int argc, char **argv) {
 				if (pid==0){
 					if (execv(results[0],results)<0){
 						printf("Process Failed\n");
-						exit(1);
+						exit(0);
 					}
 
 				}
