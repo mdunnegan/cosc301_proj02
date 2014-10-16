@@ -147,28 +147,49 @@ void print_tokens(char *tokens[]) {
         i++;
     }
 }
-int overhead(const char *line, int sequential){
-		if (strcmp(line, "exit")==0){
-			return 1;
+int overhead(char **line, int sequential){
+		int count =0;
+		for (int i = 0; line[i]!=NULL; i++){
+			//count number of terms in a command.
+			count++;
 		}
-		if (strcmp(line, "mode")==0){
-			if (sequential==1){
-				printf("Mode is Sequential\n");
-				return 0;
+		if (count==0){
+			//if there are no terms, do nothing.
+			return 0;
+		}
+		else{
+			if (count==1){
+				//if 1 term, there is  a limited number of options. 
+				if (strcmp(line[0], "exit")==0){
+					return 1;
+				}
+				if (strcmp(line[0], "mode")==0){
+					if (sequential==1){
+						printf("Mode is Sequential\n");
+						return 4;
+					}
+					else {
+						printf("Mode is Parallel\n");
+						return 4;
+					}
+				}
+				if (strcmp(line[0],"sequential")==0){
+					return 2;
+				}
+				if (strcmp(line[0],"parallel")==0){
+					return 3;
+				}
 			}
-			else {
-				printf("Mode is Parallel\n");
-				return 0;
+			if (count==2){
+				//likewise if there is only 2 terms then there is a limited number of options.
+				if ( strcmp(line[0],"mode")==0 && strcmp(line[1], "s")==0){
+					return 2;
+				}
+				if (strcmp(line[0], "mode")==0 && strcmp(line[1], "p")==0){
+					return 3;;
+				}
 			}
-		}
-		
-		if (strcmp(line, "sequential")==0 || strcmp(line, "mode s")==0){
-			sequential = 1;
-			return 2;
-		}
-		if (strcmp(line, "parallel")==0 || strcmp(line, "mode p")==0){
-			sequential = 0;
-			return 3;;
+			//if (count>2) then this is not an overhead command.
 		}
 		return 0;
 }
@@ -201,8 +222,8 @@ int main(int argc, char **argv) {
 		if (sequential) {
 			for (int i=0; tokens[i]!=NULL; i++){
 				char ** results = parse_command(tokens[i]);
-				int overhead_command = overhead(tokens[i], sequential);
-				//if (overhead_command==0) do nothing. print mode.
+				int overhead_command = overhead(results, sequential);
+				//if (overhead_command==0) do nothing. 
 				if (overhead_command==1){
 					//exit command issued
 					exit_terminal = 1;
@@ -216,6 +237,10 @@ int main(int argc, char **argv) {
 				if (overhead_command==3){
 					//switch to parallel
 					mode_switch = 2;
+					continue;
+				}
+				if (overhead_command==4){
+					//already printed what mode we are in
 					continue;
 				}
 
