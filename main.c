@@ -119,26 +119,26 @@ int overhead(char **line, int sequential){
 		}
 		else{
 				if (count==1){
-						//if 1 term, there is  a limited number of options. 
-						if (strcmp(line[0], "exit")==0){
-								return 1;
-						}
-						if (strcmp(line[0], "mode")==0){
-								if (sequential==1){
-									printf("Mode is Sequential\n");
-									return 4;
-								}
-								else {
-									printf("Mode is Parallel\n");
-									return 4;
-								}
-						}
-						if (strcmp(line[0],"sequential")==0){
-								return 2;
-						}
-						if (strcmp(line[0],"parallel")==0){
-								return 3;
-						}
+							//if 1 term, there is  a limited number of options. 
+							if (strcmp(line[0], "exit")==0){
+									return 1;
+							}
+							if (strcmp(line[0], "mode")==0){
+									if (sequential==1){
+										printf("Mode is Sequential\n");
+										return 4;
+									}
+									else {
+										printf("Mode is Parallel\n");
+										return 4;
+									}
+							}
+							if (strcmp(line[0],"sequential")==0){
+									return 2;
+							}
+							if (strcmp(line[0],"parallel")==0){
+									return 3;
+							}
 				}
 				if (count==2){
 					//likewise if there is only 2 terms then there is a limited number of options.
@@ -183,6 +183,7 @@ int main(int argc, char **argv) {
 	          if (overhead_command==1){
 	              //exit command issued
 	              exit_terminal = 1;
+
 	              continue;
 	          }
 	          if (overhead_command==2){
@@ -207,44 +208,49 @@ int main(int argc, char **argv) {
 								fp = fopen("shell-config", "r");
 								char holder[20];
 								// initialize linked list to store paths
-								struct node **head = NULL;
+								struct node *head = NULL;
 								while (fscanf(fp, "%s/n", holder) != EOF) {
 								    list_insert(holder, &head);
 								}
+                fclose(fp);
 
-								list_print(head);
-
-								struct node *iterator = *head;
+								struct node *iterator = head;
 								struct stat statresult;
 								int rv = stat(results[0], &statresult);
+
+                //printf("%i\n", rv);
+
+                // this loop checks to see if there are any path folders that may contain the command
 								if (rv < 0){
-									  // stat failed
-										printf("%s", (*head) -> name);
+			              //printf("RV not negative\n");
+                    //printf("%s\n", iterator -> name);
+
 									  while (iterator != NULL){
-									  		printf("a");
 
-									  	  char new_string[40];
-									  	  strcat(new_string, iterator->name);
-									  		strcat(new_string, "/");
+                        char* name = strdup(iterator -> name);
+                        //printf("%s\n", name);
 
-									  		strcat(new_string, results[0]);
-									  		rv = stat(iterator->name, &statresult);
-									  	  if (rv < 0){
-									  	  	  iterator = iterator -> next;
-									  	  	  continue;
-									  	  }
-									  	  results[0] = new_string;
-									  	  iterator = iterator -> next;
+                        rv = stat(iterator->name, &statresult);
+
+                        if (rv < 0){
+                            // not found
+                            continue;
+                        } else {
+                            results[0] = iterator -> name;
+                        }
+
+                        rv = stat(iterator->name, &statresult);
+                        iterator = iterator -> next;
 									  }
 
-								}
+								} 
 
-								printf("1\n");
+                printf("%s\n", results[0]);
+
+                //printf("results[0]: %s\n", results[0]);
 	              if (execv(results[0],results)<0){
-	          	      printf("2\n");
 	                  printf("Process entered is wrong.\n");
 	                  exit(0);
-	                  printf("Exited, something messed up."); //should never print
 	              }
 	          }
 	          if (sequential) {
