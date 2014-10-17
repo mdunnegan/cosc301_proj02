@@ -31,52 +31,52 @@ Basic Algorithm
 
 char** tokenify(const char *s) {
     // input a constant string --> return an array of token strings (that were separated by whitespace)
-	int count = 0;
-	char *copy = strdup(s);
-	char *token;
-	char **words=malloc(sizeof(char*)*(strlen(s)));
-	token = strtok(copy ,";");
-	while (token!=NULL){
-		//Error case is null...so no redundancy needed 
-		if (strstr(token, "#")==NULL){
-		//if the line contains a #, ignore the rest of the tokens.
-			words[count]=strdup(token);
-			token = strtok(NULL, ";");
-			count++;	
+		int count = 0;
+		char *copy = strdup(s);
+		char *token;
+		char **words=malloc(sizeof(char*)*(strlen(s)));
+		token = strtok(copy ,";");
+		while (token!=NULL){
+			//Error case is null...so no redundancy needed 
+				if (strstr(token, "#")==NULL){
+					//if the line contains a #, ignore the rest of the tokens.
+						words[count]=strdup(token);
+						token = strtok(NULL, ";");
+						count++;	
+				}
+				else{
+						if (token[0]=='#'){
+							  break;
+						}
+						//slice up to #
+						char *token_hash=strtok(token, "#");
+						words[count]=strdup(token_hash);
+						count++;
+						break;
+				}
 		}
-		else{
-			if (token[0]=='#'){
-				break;
-			}
-			//slice up to #
-			char *token_hash=strtok(token, "#");
-			words[count]=strdup(token_hash);
-			count++;
-			break;
+		words[count]=NULL;
+		free(copy);
+		for (int i=0; i<count; i++){
+			//printf("Token %i: %s\n", i, words[i]);
+			//fflush(stdout);
 		}
-	}
-	words[count]=NULL;
-	free(copy);
-	for (int i=0; i<count; i++){
-		//printf("Token %i: %s\n", i, words[i]);
-		//fflush(stdout);
-	}
-	return words;
-	
-	
+		return words;
 }
+
 // parses a single command, returns a pointer to each element
 // first element will be the file path
 // all following elements will be flags
+
 char** parse_command(const char *s) {
     char *str = strdup(s);
     int index = 0;
 
     int numWhiteSpaces = 0;
     for (int i = 0; i < strlen(s); i++){
-    	if (isspace(s[i])){
-    	    numWhiteSpaces++;
-    	}
+	    	if (isspace(s[i])){
+	    	    numWhiteSpaces++;
+	    	}
     }
 
     // allocate array of pointers
@@ -89,58 +89,15 @@ char** parse_command(const char *s) {
 
 
     while (token != NULL){
-    	token = strdup(token);
-    	returnArray[index] = token;
-    	index++;
-    	token = strtok(NULL, " \n\t");
+	    	token = strdup(token);
+	    	returnArray[index] = token;
+	    	index++;
+	    	token = strtok(NULL, " \n\t");
     }
     returnArray[index] = NULL;
 
     return returnArray; // pointer to rv
 }
-
-// int validate_command(char **s){
-	
-// 	int i = 0;
-// 	printf("a\n");
-// 	while (*s[i] != NULL){
-// 		printf("%s\n", *s[0]);
-
-// 		char* copy = strdup(*s[i]);
-// 		// file path
-// 		if (i == 0) {
-// 			if (copy[0] != '/'){
-// 				printf("String beings with /");
-// 				return 0; // false, file path must start with slash
-// 			}
-// 			if (copy[strlen(copy)-1] = "/"){
-// 				return 0; // false. a tailing '/' -> no program given
-// 			} 
-// 		}
-
-// 		// flags
-// 		else {
-// 			if (copy[0] != '-'){
-// 				printf("Flag didn't have a dash");
-// 				return 0;
-// 			}
-
-// 			// 
-
-// 			// if (strlen(copy) > 2){
-// 			// 	return 0; 
-// 			// }
-// 		}
-// 		i++;
-// 	}
-
-// 	char** copy = strdup(s);
-// 	printf("The copy: %s\n", copy);
-// 	printf("Copy[0]: %c\n", copy[0]);
-
-	
-
-// }
 
 void print_tokens(char *tokens[]) {
     int i = 0;
@@ -149,48 +106,49 @@ void print_tokens(char *tokens[]) {
         i++;
     }
 }
+
 int overhead(char **line, int sequential){
 		int count =0;
 		for (int i = 0; line[i]!=NULL; i++){
-			//count number of terms in a command.
-			count++;
+				//count number of terms in a command.
+				count++;
 		}
 		if (count==0){
-			//if there are no terms, do nothing.
-			return 0;
+				//if there are no terms, do nothing.
+				return 0;
 		}
 		else{
-			if (count==1){
-				//if 1 term, there is  a limited number of options. 
-				if (strcmp(line[0], "exit")==0){
-					return 1;
+				if (count==1){
+						//if 1 term, there is  a limited number of options. 
+						if (strcmp(line[0], "exit")==0){
+								return 1;
+						}
+						if (strcmp(line[0], "mode")==0){
+								if (sequential==1){
+									printf("Mode is Sequential\n");
+									return 4;
+								}
+								else {
+									printf("Mode is Parallel\n");
+									return 4;
+								}
+						}
+						if (strcmp(line[0],"sequential")==0){
+								return 2;
+						}
+						if (strcmp(line[0],"parallel")==0){
+								return 3;
+						}
 				}
-				if (strcmp(line[0], "mode")==0){
-					if (sequential==1){
-						printf("Mode is Sequential\n");
-						return 4;
-					}
-					else {
-						printf("Mode is Parallel\n");
-						return 4;
-					}
+				if (count==2){
+					//likewise if there is only 2 terms then there is a limited number of options.
+						if ( strcmp(line[0],"mode")==0 && strcmp(line[1], "s")==0){
+								return 2;
+						}
+						if (strcmp(line[0], "mode")==0 && strcmp(line[1], "p")==0){
+								return 3;;
+						}
 				}
-				if (strcmp(line[0],"sequential")==0){
-					return 2;
-				}
-				if (strcmp(line[0],"parallel")==0){
-					return 3;
-				}
-			}
-			if (count==2){
-				//likewise if there is only 2 terms then there is a limited number of options.
-				if ( strcmp(line[0],"mode")==0 && strcmp(line[1], "s")==0){
-					return 2;
-				}
-				if (strcmp(line[0], "mode")==0 && strcmp(line[1], "p")==0){
-					return 3;;
-				}
-			}
 			//if (count>2) then this is not an overhead command.
 		}
 		return 0;
@@ -198,131 +156,119 @@ int overhead(char **line, int sequential){
 
 int main(int argc, char **argv) {
 
-        //const char *tmp1 = "/bin/ls -p -f ; /bin/pwd -w";
-        //char **tokens = tokenify(tmp1);
-    //mchar **results = parse_command(tokens[0]);
-    //print_tokens(results);
-    //validate_command(results);
+	  //get Input
+	  int sequential = 1;
+	  int count = 0;
+	  printf("Prompt: ");
+	  fflush(stdout);
+	  char line[1024];
 
-        //get Input
-        int sequential = 1;
-        int count = 0;
-        printf("Prompt: ");
-        fflush(stdout);
-        char line[1024];
-        for(;fgets(line, 1024, stdin) != NULL; printf("Prompt: ")) {
-                for (int i =0; i<1024; i++){
-                        if (line[i]=='\n'){
-                                line[i]='\0';
-                        }
-                }
+	  for(;fgets(line, 1024, stdin) != NULL; printf("Prompt: ")) {
+		    for (int i =0; i<1024; i++){
+			      if (line[i]=='\n'){
+			        line[i]='\0';
+			      }
+		    }
 
-                //tokenify the line. Returns separate commands.
-                char ** tokens = tokenify(line);
-                int exit_terminal = 0;
-                int mode_switch = 0;
-                pid_t pid;
+		    //tokenify the line. Returns separate commands.
+		    char ** tokens = tokenify(line);
+		    int exit_terminal = 0;
+		    int mode_switch = 0;
+		    pid_t pid;
 
-                for (int i=0; tokens[i]!=NULL; i++){
-                        char ** results = parse_command(tokens[i]);
-                        int overhead_command = overhead(results, sequential);
-                        //if (overhead_command==0) do nothing.
-                        if (overhead_command==1){
-                                //exit command issued
-                                exit_terminal = 1;
-                                continue;
-                        }
-                        if (overhead_command==2){
-                                //switch to sequential mode
-                                mode_switch = 1;
-                                continue;
-                        }
-                        if (overhead_command==3){
-                                //switch to parallel
-                                mode_switch = 2;
-                                continue;
-                        }
-                        if (overhead_command==4){
-                                //already printed what mode we are in
-                                continue;
-                        }
+		    for (int i=0; tokens[i]!=NULL; i++){
+	          char ** results = parse_command(tokens[i]);
+	          int overhead_command = overhead(results, sequential);
+	          //if (overhead_command==0) do nothing.
+	          if (overhead_command==1){
+	              //exit command issued
+	              exit_terminal = 1;
+	              continue;
+	          }
+	          if (overhead_command==2){
+	              //switch to sequential mode
+	              mode_switch = 1;
+	              continue;
+	          }
+	          if (overhead_command==3){
+	              //switch to parallel
+	              mode_switch = 2;
+	              continue;
+	          }
+	          if (overhead_command==4){
+	              //already printed what mode we are in
+	              continue;
+	          }
 
+	          pid = fork();
 
-                        pid = fork();
-                        if (pid==0){
-																FILE *fp;
-																fp = fopen("shell-config", "r");
-																char holder[20];
-																// initialize linked list to store paths
-																struct node **head = NULL;
-																while (fscanf(fp, "%s/n", holder) != EOF) {
-																    list_insert(holder, &head);
-																}
+	          if (pid==0){
+								FILE *fp;
+								fp = fopen("shell-config", "r");
+								char holder[20];
+								// initialize linked list to store paths
+								struct node **head = NULL;
+								while (fscanf(fp, "%s/n", holder) != EOF) {
+								    list_insert(holder, &head);
+								}
 
-																list_print(head);
+								list_print(head);
 
-																struct node *iterator = *head;
-																struct stat statresult;
-																int rv = stat(results[0], &statresult);
-																if (rv < 0){
-																	  // stat failed
-																		printf("%s", (*head) -> name);
-																	  while (iterator != NULL){
-																	  		printf("a");
+								struct node *iterator = *head;
+								struct stat statresult;
+								int rv = stat(results[0], &statresult);
+								if (rv < 0){
+									  // stat failed
+										printf("%s", (*head) -> name);
+									  while (iterator != NULL){
+									  		printf("a");
 
-																	  	  char new_string[40];
-																	  	  strcat(new_string, iterator->name);
-																	  		strcat(new_string, "/");
+									  	  char new_string[40];
+									  	  strcat(new_string, iterator->name);
+									  		strcat(new_string, "/");
 
-																	  		strcat(new_string, results[0]);
-																	  		rv = stat(iterator->name, &statresult);
-																	  	  if (rv < 0){
-																	  	  	  iterator = iterator -> next;
-																	  	  	  continue;
-																	  	  }
-																	  	  results[0] = new_string;
-																	  	  iterator = iterator -> next;
-																	  }
+									  		strcat(new_string, results[0]);
+									  		rv = stat(iterator->name, &statresult);
+									  	  if (rv < 0){
+									  	  	  iterator = iterator -> next;
+									  	  	  continue;
+									  	  }
+									  	  results[0] = new_string;
+									  	  iterator = iterator -> next;
+									  }
 
-																}
+								}
 
-																// we need to set an environment variable with setenv
+								printf("1\n");
+	              if (execv(results[0],results)<0){
+	          	      printf("2\n");
+	                  printf("Process entered is wrong.\n");
+	                  exit(0);
+	                  printf("Exited, something messed up."); //should never print
+	              }
+	          }
+	          if (sequential) {
+	              wait(&pid);
+	          }
+		    }
 
-																// Exec v should use this 'environ' and allow other commands to be called
+		    if (sequential == 0){
+		        wait(&pid);
+		    }
 
+		    if (exit_terminal==1){
+	          return 0;
+		    }
+		    if (mode_switch==1){
+		        sequential = 1; //switch to sequential
+		    }
+		    if (mode_switch==2){
+		        sequential = 0; //switch to parallel
+		    }
 
-																printf("1\n");
-                                if (execv(results[0],results)<0){
-                                	      printf("2\n");
-                                        printf("Process entered is wrong.\n");
-                                        exit(0);
-                                        printf("Exited, something messed up."); //should never print
-                                }
-                        }
-                        if (sequential) {
-                                wait(&pid);
-                        }
-                }
+		    count ++;
+	  }
 
-                if (sequential == 0){
-                        wait(&pid);
-                }
-
-                if (exit_terminal==1){
-                        return 0;
-                }
-                if (mode_switch==1){
-                        sequential = 1; //switch to sequential
-                }
-                if (mode_switch==2){
-                        sequential = 0; //switch to parallel
-                }
-
-
-                count ++;
-        }
-
-
-        return 0;
+	  return 0;
 }
 
