@@ -56,7 +56,7 @@ char** tokenify(const char *s) {
 				}
 		}
 		words[count]=NULL;
-		free(copy);
+		//free(copy);
 		for (int i=0; i<count; i++){
 			//printf("Token %i: %s\n", i, words[i]);
 			//fflush(stdout);
@@ -92,10 +92,13 @@ char** parse_command(const char *s) {
 	    	token = strdup(token);
 	    	returnArray[index] = token;
 	    	index++;
+        //free(token);
 	    	token = strtok(NULL, " \n\t");
     }
     returnArray[index] = NULL;
 
+    //free(str);
+    //free(token);
     return returnArray; // pointer to rv
 }
 
@@ -180,6 +183,9 @@ int main(int argc, char **argv) {
 	          char ** results = parse_command(tokens[i]);
 	          int overhead_command = overhead(results, sequential);
 	          //if (overhead_command==0) do nothing.
+            if (overhead_command > 0) {
+                // free
+            }
 	          if (overhead_command==1){
 	              //exit command issued
 	              exit_terminal = 1;
@@ -274,7 +280,7 @@ int main(int argc, char **argv) {
 
 		    count ++;
 	  }
-
+    // free
 	  return 0;
 }
 
