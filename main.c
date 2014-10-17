@@ -56,10 +56,11 @@ char** tokenify(const char *s) {
 				}
 		}
 		words[count]=NULL;
-		//free(copy);
+		free(copy);
 		for (int i=0; i<count; i++){
 			//printf("Token %i: %s\n", i, words[i]);
 			//fflush(stdout);
+      free(words[count]);
 		}
 		return words;
 }
@@ -97,8 +98,8 @@ char** parse_command(const char *s) {
     }
     returnArray[index] = NULL;
 
-    //free(str);
-    //free(token);
+    free(str);
+    free(token);
     return returnArray; // pointer to rv
 }
 
@@ -189,7 +190,7 @@ int main(int argc, char **argv) {
 	          if (overhead_command==1){
 	              //exit command issued
 	              exit_terminal = 1;
-
+                free(results);
 	              continue;
 	          }
 	          if (overhead_command==2){
@@ -234,7 +235,6 @@ int main(int argc, char **argv) {
 									  while (iterator != NULL){
 
                         char* name = strdup(iterator -> name);
-                        //printf("%s\n", name);
 
                         rv = stat(iterator->name, &statresult);
 
@@ -250,9 +250,7 @@ int main(int argc, char **argv) {
 									  }
 
 								} 
-
-                printf("%s\n", results[0]);
-
+                list_delete(head);
                 //printf("results[0]: %s\n", results[0]);
 	              if (execv(results[0],results)<0){
 	                  printf("Process entered is wrong.\n");
@@ -269,6 +267,7 @@ int main(int argc, char **argv) {
 		    }
 
 		    if (exit_terminal==1){
+            free(tokens);
 	          return 0;
 		    }
 		    if (mode_switch==1){
@@ -280,7 +279,6 @@ int main(int argc, char **argv) {
 
 		    count ++;
 	  }
-    // free
 	  return 0;
 }
 
