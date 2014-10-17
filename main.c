@@ -250,31 +250,50 @@ int main(int argc, char **argv) {
 
                         pid = fork();
                         if (pid==0){
-
-
 																FILE *fp;
 																fp = fopen("shell-config", "r");
-
 																char holder[20];
-
 																// initialize linked list to store paths
 																struct node **head = NULL;
-
 																while (fscanf(fp, "%s/n", holder) != EOF) {
 																    list_insert(holder, &head);
 																}
 
-																
+																list_print(head);
 
-																//node** other_file_paths = malloc(sizeof(node)*10)
+																struct node *iterator = *head;
+																struct stat statresult;
+																int rv = stat(results[0], &statresult);
+																if (rv < 0){
+																	  // stat failed
+																		printf("%s", (*head) -> name);
+																	  while (iterator != NULL){
+																	  		printf("a");
+
+																	  	  char new_string[40];
+																	  	  strcat(new_string, iterator->name);
+																	  		strcat(new_string, "/");
+
+																	  		strcat(new_string, results[0]);
+																	  		rv = stat(iterator->name, &statresult);
+																	  	  if (rv < 0){
+																	  	  	  iterator = iterator -> next;
+																	  	  	  continue;
+																	  	  }
+																	  	  results[0] = new_string;
+																	  	  iterator = iterator -> next;
+																	  }
+
+																}
 
 																// we need to set an environment variable with setenv
 
 																// Exec v should use this 'environ' and allow other commands to be called
 
 
-
+																printf("1\n");
                                 if (execv(results[0],results)<0){
+                                	      printf("2\n");
                                         printf("Process entered is wrong.\n");
                                         exit(0);
                                         printf("Exited, something messed up."); //should never print
